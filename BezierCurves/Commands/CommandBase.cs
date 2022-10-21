@@ -20,7 +20,7 @@ namespace BezierCurves.Commands
 
 		protected void OnCanExecuteChanged()
 		{
-			CanExecuteChanged?.Invoke(this, new EventArgs());
+			CanExecuteChanged?.Invoke(this, new System.EventArgs());
 		}
 	}
 }

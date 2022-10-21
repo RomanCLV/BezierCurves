@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BezierCurves.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,21 @@ namespace BezierCurves.Views
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (DataContext is MainViewModel viewModel)
+            {
+                if (e.AddedItems.Count > 0 && e.AddedItems[0] is SampleViewModel sampleViewModel)
+                {
+                    viewModel.AddingPoint = sampleViewModel;
+                }
+                else
+                {
+                    viewModel.AddingPoint = null;
+                }
+            }
         }
     }
 }

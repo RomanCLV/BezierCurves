@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BezierCurves"
+        xmlns:views="clr-namespace:BezierCurves.Views"
         xmlns:converters="clr-namespace:BezierCurves.Converters"
         xmlns:HelixToolkit="clr-namespace:HelixToolkit.Wpf;assembly=HelixToolkit.Wpf"
         mc:Ignorable="d"
@@ -47,13 +48,24 @@
 
                 <TextBlock Grid.Row="0" Text="Points :" Foreground="White"/>
                 <ListView 
+                    x:Name="lv"
                     Grid.Row="1"
                     Background="Transparent"
                     FocusVisualStyle="{x:Null}"
-                    ItemsSource="{Binding PointsCollection}">
+                    SelectedIndex="{Binding SelectedIndex, UpdateSourceTrigger=PropertyChanged}"
+                    ItemsSource="{Binding PointsCollection}"
+                    SelectionChanged="ListView_SelectionChanged"
+                    >
+                    <ListView.InputBindings>
+                        <KeyBinding Command="{Binding DeletePointCommand}" Key="Delete" />
+                        <KeyBinding Command="{Binding DeletePointCommand}" Key="Backspace" />
+                        <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
+                    </ListView.InputBindings>
+                    
                     <ListView.ItemContainerStyle>
                         <Style TargetType="{x:Type ListViewItem}">
-                            <!--<Setter Property="Foreground" Value="{StaticResource foregroundColor}" />-->
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
                             <Style.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter Property="Background" Value="Transparent" />
@@ -64,6 +76,11 @@
                             </Style.Triggers>
                         </Style>
                     </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" />
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
                 </ListView>
             </Grid>
 
@@ -71,9 +88,11 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition />
+                    <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <Button Content="Add"    Command="{Binding AddCommand}"/>
-                <Button Content="Delete" Command="{Binding DeleteCommand}"/>
+                <Button Grid.Column="0" Content="New point"    Command="{Binding NewPointCommand}"   />
+                <Button Grid.Column="1" Content="Delete point" Command="{Binding DeletePointCommand}" IsEnabled="{Binding ElementName=lv, Path=SelectedValue, Converter={StaticResource ValueNotNullConverter}}"/>
+                <Button Grid.Column="2" Content="Add point"    Command="{Binding AddPointCommand}"    IsEnabled="{Binding AddingPoint, Converter={StaticResource ValueNotNullConverter}}"/>
             </Grid>
             
             <Grid Grid.Row="2" Margin="10" IsEnabled="{Binding AddingPoint, Converter={StaticResource ValueNotNullConverter}}">
@@ -87,7 +106,7 @@
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Grid.Column="0" DataContext="{Binding AddingPoint}">
+                <Grid Grid.Row="0" Grid.Column="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="50"/>
                         <ColumnDefinition Width="50"/>
@@ -99,10 +118,14 @@
                         <RowDefinition />
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Point :" Foreground="White" />
-                    <TextBox   Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox   Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding AddingPoint.Name, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
+                        </TextBox.InputBindings>
+                    </TextBox>
                 </Grid>
 
-                <Grid Grid.Row="1" Grid.Column="0" Margin="0 20 0 0" DataContext="{Binding AddingPoint}">
+                <Grid Grid.Row="1" Grid.Column="0" Margin="0 20 0 0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="50"/>
                         <ColumnDefinition Width="50"/>
@@ -117,12 +140,24 @@
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="X :" Foreground="White" />
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="Y :" Foreground="White" />
                     <TextBlock Grid.Row="1" Grid.Column="2" Text="Z :" Foreground="White" />
-                    <TextBox   Grid.Row="2" Grid.Column="0" Text="{Binding X, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding Y, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox   Grid.Row="2" Grid.Column="2" Text="{Binding Z, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox   Grid.Row="2" Grid.Column="0" Text="{Binding AddingPoint.X, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding AddingPoint.Y, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <TextBox   Grid.Row="2" Grid.Column="2" Text="{Binding AddingPoint.Z, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
+                        </TextBox.InputBindings>
+                    </TextBox>
                 </Grid>
 
-                <Grid Grid.Row="2" Grid.Column="0" Margin="0 20 0 0" DataContext="{Binding AddingPoint}">
+                <Grid Grid.Row="2" Grid.Column="0" Margin="0 20 0 0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="50"/>
                         <ColumnDefinition Width="50"/>
@@ -139,13 +174,29 @@
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="Y :" Foreground="White" />
                     <TextBlock Grid.Row="1" Grid.Column="2" Text="Z :" Foreground="White" />
                     <TextBlock Grid.Row="1" Grid.Column="3" Text="Length :" Foreground="White" />
-                    <TextBox   Grid.Row="2" Grid.Column="0" Text="{Binding IX, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding IY, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox   Grid.Row="2" Grid.Column="2" Text="{Binding IZ, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox   Grid.Row="2" Grid.Column="3" Text="{Binding ILength, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox   Grid.Row="2" Grid.Column="0" Text="{Binding AddingPoint.IX, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding AddingPoint.IY, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <TextBox   Grid.Row="2" Grid.Column="2" Text="{Binding AddingPoint.IZ, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <TextBox   Grid.Row="2" Grid.Column="3" Text="{Binding AddingPoint.ILength, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
+                        </TextBox.InputBindings>
+                    </TextBox>
                 </Grid>
 
-                <Grid Grid.Row="3" Grid.Column="0" Margin="0 20 0 0" DataContext="{Binding AddingPoint}">
+                <Grid Grid.Row="3" Grid.Column="0" Margin="0 20 0 0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="50"/>
                         <ColumnDefinition Width="50"/>
@@ -162,10 +213,26 @@
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="Y :" Foreground="White" />
                     <TextBlock Grid.Row="1" Grid.Column="2" Text="Z :" Foreground="White" />
                     <TextBlock Grid.Row="1" Grid.Column="3" Text="Length :" Foreground="White" />
-                    <TextBox   Grid.Row="2" Grid.Column="0" Text="{Binding OX, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding OY, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox   Grid.Row="2" Grid.Column="2" Text="{Binding OZ, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBox   Grid.Row="2" Grid.Column="3" Text="{Binding OLength, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox   Grid.Row="2" Grid.Column="0" Text="{Binding AddingPoint.OX, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding AddingPoint.OY, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <TextBox   Grid.Row="2" Grid.Column="2" Text="{Binding AddingPoint.OZ, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <TextBox   Grid.Row="2" Grid.Column="3" Text="{Binding AddingPoint.OLength, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
+                        </TextBox.InputBindings>
+                    </TextBox>
                 </Grid>
             
             </Grid>
