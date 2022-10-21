@@ -7,22 +7,19 @@ using System.Threading.Tasks;
 
 namespace BezierCurves.Models
 {
-    internal class Sample : I3DItem
+    internal class Tangente : I3DItem
     {
         public double X { get; set; }
         public double Y { get; set; }
         public double Z { get; set; }
+        public double Length { get; set; }
 
-        public Tangente TIn { get; private set; }
-        public Tangente TOut { get; private set; }
-
-        public Sample()
+        public Tangente()
         {
             X = 0;
             Y = 0;
             Z = 0;
-            TIn = new Tangente();
-            TOut = new Tangente();
+            Length = 0;
         }
     }
 }

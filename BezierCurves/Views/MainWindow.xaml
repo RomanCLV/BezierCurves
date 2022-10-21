@@ -4,16 +4,21 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BezierCurves"
+        xmlns:converters="clr-namespace:BezierCurves.Converters"
         xmlns:HelixToolkit="clr-namespace:HelixToolkit.Wpf;assembly=HelixToolkit.Wpf"
         mc:Ignorable="d"
         Title="Bezier Curves" Height="720" Width="1280">
+    <Window.Resources>
+        <converters:ValueNotNullConverter x:Key="ValueNotNullConverter" />
+    </Window.Resources>
     <Grid>
         <HelixToolkit:HelixViewport3D>
             <!-- Remember to add light to the scene -->
             <HelixToolkit:SunLight/>
 
-            <ModelVisual3D x:Name="pointsCollections" />
-            <ModelVisual3D x:Name="linesCollections" />
+            <ModelVisual3D x:Name="addingPoint" />
+            <ModelVisual3D x:Name="pointsCollection" />
+            <ModelVisual3D x:Name="linesCollection" />
 
             <HelixToolkit:GridLinesVisual3D Width="8" Length="8" MinorDistance="1" MajorDistance="1" Thickness="0.01"/>
             <HelixToolkit:HelixViewport3D.Background>
@@ -24,98 +29,147 @@
             </HelixToolkit:HelixViewport3D.Background>
         </HelixToolkit:HelixViewport3D>
 
-        <Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
+        <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0" Grid.Column="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="50"/>
-                </Grid.ColumnDefinitions>
+            <Grid Grid.Row="0">
                 <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
+                    <RowDefinition Height="auto"/>
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Point :" Foreground="White" />
-                <TextBox   Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
-            </Grid>
-            
-            <Grid Grid.Row="1" Grid.Column="0" Margin="0 20 0 0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="50"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Coordonates :" Foreground="White" />
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="X :" Foreground="White" />
-                <TextBlock Grid.Row="1" Grid.Column="1" Text="Y :" Foreground="White" />
-                <TextBlock Grid.Row="1" Grid.Column="2" Text="Z :" Foreground="White" />
-                <TextBox   Grid.Row="2" Grid.Column="0" Text="{Binding X, UpdateSourceTrigger=PropertyChanged}" />
-                <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding Y, UpdateSourceTrigger=PropertyChanged}" />
-                <TextBox   Grid.Row="2" Grid.Column="2" Text="{Binding Z, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Grid.Row="0" Text="Points :" Foreground="White"/>
+                <ListView 
+                    Grid.Row="1"
+                    Background="Transparent"
+                    FocusVisualStyle="{x:Null}"
+                    ItemsSource="{Binding PointsCollection}">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListViewItem}">
+                            <!--<Setter Property="Foreground" Value="{StaticResource foregroundColor}" />-->
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="Transparent" />
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="Transparent" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                </ListView>
             </Grid>
 
-            <Grid Grid.Row="2" Grid.Column="0" Margin="0 20 0 0">
+            <Grid Grid.Row="1" VerticalAlignment="Top">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="In direction :" Foreground="White" />
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="X :" Foreground="White" />
-                <TextBlock Grid.Row="1" Grid.Column="1" Text="Y :" Foreground="White" />
-                <TextBlock Grid.Row="1" Grid.Column="2" Text="Z :" Foreground="White" />
-                <TextBlock Grid.Row="1" Grid.Column="3" Text="Length :" Foreground="White" />
-                <TextBox   Grid.Row="2" Grid.Column="0" Text="{Binding IX, UpdateSourceTrigger=PropertyChanged}" />
-                <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding IY, UpdateSourceTrigger=PropertyChanged}" />
-                <TextBox   Grid.Row="2" Grid.Column="2" Text="{Binding IZ, UpdateSourceTrigger=PropertyChanged}" />
-                <TextBox   Grid.Row="2" Grid.Column="3" Text="{Binding ILength, UpdateSourceTrigger=PropertyChanged}" />
-            </Grid>
-
-            <Grid Grid.Row="3" Grid.Column="0" Margin="0 20 0 0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="50"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Out direction :" Foreground="White" />
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="X :" Foreground="White" />
-                <TextBlock Grid.Row="1" Grid.Column="1" Text="Y :" Foreground="White" />
-                <TextBlock Grid.Row="1" Grid.Column="2" Text="Z :" Foreground="White" />
-                <TextBlock Grid.Row="1" Grid.Column="3" Text="Length :" Foreground="White" />
-                <TextBox   Grid.Row="2" Grid.Column="0" Text="{Binding OX, UpdateSourceTrigger=PropertyChanged}" />
-                <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding OY, UpdateSourceTrigger=PropertyChanged}" />
-                <TextBox   Grid.Row="2" Grid.Column="2" Text="{Binding OZ, UpdateSourceTrigger=PropertyChanged}" />
-                <TextBox   Grid.Row="2" Grid.Column="3" Text="{Binding OLength, UpdateSourceTrigger=PropertyChanged}" />
+                <Button Content="Add"    Command="{Binding AddCommand}"/>
+                <Button Content="Delete" Command="{Binding DeleteCommand}"/>
             </Grid>
             
+            <Grid Grid.Row="2" Margin="10" IsEnabled="{Binding AddingPoint, Converter={StaticResource ValueNotNullConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Grid.Column="0" DataContext="{Binding AddingPoint}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Point :" Foreground="White" />
+                    <TextBox   Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                </Grid>
+
+                <Grid Grid.Row="1" Grid.Column="0" Margin="0 20 0 0" DataContext="{Binding AddingPoint}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Coordonates :" Foreground="White" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="X :" Foreground="White" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Y :" Foreground="White" />
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Z :" Foreground="White" />
+                    <TextBox   Grid.Row="2" Grid.Column="0" Text="{Binding X, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding Y, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox   Grid.Row="2" Grid.Column="2" Text="{Binding Z, UpdateSourceTrigger=PropertyChanged}" />
+                </Grid>
+
+                <Grid Grid.Row="2" Grid.Column="0" Margin="0 20 0 0" DataContext="{Binding AddingPoint}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="In direction :" Foreground="White" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="X :" Foreground="White" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Y :" Foreground="White" />
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Z :" Foreground="White" />
+                    <TextBlock Grid.Row="1" Grid.Column="3" Text="Length :" Foreground="White" />
+                    <TextBox   Grid.Row="2" Grid.Column="0" Text="{Binding IX, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding IY, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox   Grid.Row="2" Grid.Column="2" Text="{Binding IZ, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox   Grid.Row="2" Grid.Column="3" Text="{Binding ILength, UpdateSourceTrigger=PropertyChanged}" />
+                </Grid>
+
+                <Grid Grid.Row="3" Grid.Column="0" Margin="0 20 0 0" DataContext="{Binding AddingPoint}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Out direction :" Foreground="White" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="X :" Foreground="White" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="Y :" Foreground="White" />
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Z :" Foreground="White" />
+                    <TextBlock Grid.Row="1" Grid.Column="3" Text="Length :" Foreground="White" />
+                    <TextBox   Grid.Row="2" Grid.Column="0" Text="{Binding OX, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding OY, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox   Grid.Row="2" Grid.Column="2" Text="{Binding OZ, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox   Grid.Row="2" Grid.Column="3" Text="{Binding OLength, UpdateSourceTrigger=PropertyChanged}" />
+                </Grid>
+            
+            </Grid>
+
         </Grid>
     </Grid>
 </Window>
