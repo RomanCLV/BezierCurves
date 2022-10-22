@@ -251,7 +251,6 @@ namespace BezierCurves.ViewModels
 
         private void UpdateTransform(GeometryModel3D geometryModel3D)
         {
-            Trace.WriteLine("SampleVM UpdateTransform");
             TranslateTransform3D transform = (TranslateTransform3D)geometryModel3D.Transform;
             transform.OffsetX = X;
             transform.OffsetY = Y;
@@ -260,7 +259,6 @@ namespace BezierCurves.ViewModels
 
         private void UpdateTangentGeometry(GeometryModel3D tangenteGeometry, Tangent tangente, double diameter)
         {
-            Trace.WriteLine("SampleVM UpdateTangentGeometry");
             tangenteGeometry.Geometry = Helper3D.Helper3D.BuildArrowGeometry(new Point3D(), tangente.GetPoint3D(), diameter);
         }
 
