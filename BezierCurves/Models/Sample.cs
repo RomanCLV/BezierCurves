@@ -1,11 +1,11 @@
-﻿using BezierCurves.EventArgs;
-using BezierCurves.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
+using BezierCurves.Interfaces;
 
 namespace BezierCurves.Models
 {
@@ -15,15 +15,19 @@ namespace BezierCurves.Models
         private double _y;
         private double _z;
 
-        public EventHandler<ModifiedPropertyEventArgs>? CoordonateChanged { get; set; }
+        public EventHandler? CoordonateChanged { get; set; }
+        public EventHandler? AreTangentsContinousChanged { get; set; }
 
         public double X
         {
             get => _x;
             set
             {
-                _x = value;
-                OnCoordonatesChanged();
+                if (_x != value)
+                {
+                    _x = value;
+                    OnCoordonatesChanged();
+                }
             }
         }
 
@@ -32,8 +36,11 @@ namespace BezierCurves.Models
             get => _y;
             set
             {
-                _y = value;
-                OnCoordonatesChanged();
+                if (_y != value)
+                {
+                    _y = value;
+                    OnCoordonatesChanged();
+                }
             }
         }
 
@@ -42,21 +49,62 @@ namespace BezierCurves.Models
             get => _z;
             set
             {
-                _z = value;
-                OnCoordonatesChanged();
+                if (_z != value)
+                {
+                    _z = value;
+                    OnCoordonatesChanged();
+                }
             }
         }
 
-        public Tangente TIn { get; private set; }
-        public Tangente TOut { get; private set; }
+        public Tangent TIn { get; private set; }
+        public Tangent TOut { get; private set; }
+
+        private bool _areTangentsContinous;
+        public bool AreTangentsContinous
+        {
+            get => _areTangentsContinous;
+            set
+            {
+                if (value != _areTangentsContinous)
+                {
+                    _areTangentsContinous = value;
+                    if (_areTangentsContinous)
+                    {
+                        TOut.SetFromOpposite(TIn);
+                    }
+                    OnAreTangentsContinousChanged();
+                }
+            }
+        }
 
         public Sample()
         {
             _x = 0;
             _y = 0;
             _z = 0;
-            TIn = new Tangente();
-            TOut = new Tangente();
+            _areTangentsContinous = true;
+            TIn = new Tangent();
+            TOut = new Tangent();
+
+            TIn.CoordonateChanged += TangentIn_CoordonatesChanged;
+            TOut.CoordonateChanged += TangentOut_CoordonatesChanged;
+        }
+
+        private void TangentIn_CoordonatesChanged(object? sender, EventArgs e)
+        {
+            if (_areTangentsContinous)
+            {
+                TOut.SetFromOpposite(TIn);
+            }
+        }
+
+        private void TangentOut_CoordonatesChanged(object? sender, EventArgs e)
+        {
+            if (_areTangentsContinous)
+            {
+                TIn.SetFromOpposite(TOut);
+            }
         }
 
         internal void Reset()
@@ -71,7 +119,12 @@ namespace BezierCurves.Models
 
         private void OnCoordonatesChanged()
         {
-            CoordonateChanged?.Invoke(this, new ModifiedPropertyEventArgs(ModifiedProperty.None));
+            CoordonateChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnAreTangentsContinousChanged()
+        {
+            AreTangentsContinousChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public Point3D GetPoint3D()
@@ -81,14 +134,16 @@ namespace BezierCurves.Models
 
         public Sample Clone()
         {
-            return new Sample()
+            Sample sample = new Sample()
             {
                 _x = _x,
                 _y = _y,
                 _z = _z,
-                TIn = TIn.Clone(),
-                TOut = TOut.Clone()
+                _areTangentsContinous = _areTangentsContinous,
             };
+            sample.TIn.SetFrom(TIn);
+            sample.TOut.SetFrom(TOut);
+            return sample;
         }
     }
 }

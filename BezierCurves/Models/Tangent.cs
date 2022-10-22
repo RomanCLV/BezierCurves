@@ -1,30 +1,33 @@
-﻿using BezierCurves.EventArgs;
-using BezierCurves.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
+using BezierCurves.Interfaces;
 
 namespace BezierCurves.Models
 {
-    internal class Tangente : I3DItem, ICloneable<Tangente>
+    internal class Tangent : I3DItem, ICloneable<Tangent>
     {
         private double _x;
         private double _y;
         private double _z;
 
-        public EventHandler<ModifiedPropertyEventArgs>? CoordonateChanged { get; set; }
+        public EventHandler? CoordonateChanged { get; set; }
 
         public double X
         {
             get => _x;
             set
             {
-                _x = value;
-                ComputeLength();
-                OnCoordonatesChanged();
+                if (_x != value)
+                {
+                    _x = value;
+                    ComputeLength();
+                    OnCoordonatesChanged();
+                }
             }
         }
 
@@ -33,9 +36,12 @@ namespace BezierCurves.Models
             get => _y;
             set
             {
-                _y = value;
-                ComputeLength();
-                OnCoordonatesChanged();
+                if (_y != value)
+                {
+                    _y = value;
+                    ComputeLength();
+                    OnCoordonatesChanged();
+                }
             }
         }
 
@@ -44,19 +50,30 @@ namespace BezierCurves.Models
             get => _z;
             set
             {
-                _z = value;
-                ComputeLength();
-                OnCoordonatesChanged();
+                if (_z != value)
+                {
+                    _z = value;
+                    ComputeLength();
+                    OnCoordonatesChanged();
+                }
             }
         }
 
         public double Length { get; set; }
 
-        public Tangente()
+        public Tangent()
         {
             _x = 0;
             _y = 0;
             _z = 0;
+            ComputeLength();
+        }
+
+        public Tangent(double x, double y, double z) : this()
+        {
+            _x = x;
+            _y = y;
+            _z = z;
             ComputeLength();
         }
 
@@ -74,9 +91,24 @@ namespace BezierCurves.Models
             OnCoordonatesChanged();
         }
 
+        internal void SetFrom(Tangent tangente)
+        {
+            X = tangente._x;
+            Y = tangente._y;
+            Z = tangente._z;
+        }
+
+
+        internal void SetFromOpposite(Tangent tangente)
+        {
+            X = -tangente._x;
+            Y = -tangente._y;
+            Z = -tangente._z;
+        }
+
         private void OnCoordonatesChanged()
         {
-            CoordonateChanged?.Invoke(this, new ModifiedPropertyEventArgs(ModifiedProperty.None));
+            CoordonateChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public Point3D GetPoint3D()
@@ -84,9 +116,9 @@ namespace BezierCurves.Models
             return new Point3D(X, Y, Z);
         }
 
-        public Tangente Clone()
+        public Tangent Clone()
         {
-            return new Tangente()
+            return new Tangent()
             {
                 _x = _x,
                 _y = _y,

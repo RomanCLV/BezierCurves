@@ -1,22 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
-using BezierCurves.EventArgs;
 using BezierCurves.Interfaces;
 using BezierCurves.Models;
-using BezierCurves.Helper3D;
 
 namespace BezierCurves.ViewModels
 {
     internal class SampleViewModel : ViewModelBase, ICloneable<SampleViewModel>
     {
-        private ModifiedProperty _modifiedProperty;
-
         private readonly Sample _sample;
 
         private string _name;
@@ -41,10 +38,7 @@ namespace BezierCurves.ViewModels
             {
                 if (_sample.X != value)
                 {
-                    _modifiedProperty = ModifiedProperty.X;
                     _sample.X = value;
-                    _modifiedProperty = ModifiedProperty.None;
-                    OnPropertyChanged(nameof(X));
                     OnPropertyChanged(nameof(FullName));
                 }
             }
@@ -57,10 +51,7 @@ namespace BezierCurves.ViewModels
             {
                 if (_sample.Y != value)
                 {
-                    _modifiedProperty = ModifiedProperty.Y;
                     _sample.Y = value;
-                    _modifiedProperty = ModifiedProperty.None;
-                    OnPropertyChanged(nameof(Y));
                     OnPropertyChanged(nameof(FullName));
                 }
             }
@@ -73,10 +64,7 @@ namespace BezierCurves.ViewModels
             {
                 if (_sample.Z != value)
                 {
-                    _modifiedProperty = ModifiedProperty.Z;
                     _sample.Z = value;
-                    _modifiedProperty = ModifiedProperty.None;
-                    OnPropertyChanged(nameof(Z));
                     OnPropertyChanged(nameof(FullName));
                 }
             }
@@ -89,10 +77,7 @@ namespace BezierCurves.ViewModels
             {
                 if (_sample.TIn.X != value)
                 {
-                    _modifiedProperty = ModifiedProperty.IX;
                     _sample.TIn.X = value;
-                    _modifiedProperty = ModifiedProperty.None;
-                    OnPropertyChanged(nameof(IX));
                 }
             }
         }
@@ -104,10 +89,7 @@ namespace BezierCurves.ViewModels
             {
                 if (_sample.TIn.Y != value)
                 {
-                    _modifiedProperty = ModifiedProperty.IY;
                     _sample.TIn.Y = value;
-                    _modifiedProperty = ModifiedProperty.None;
-                    OnPropertyChanged(nameof(IY));
                 }
             }
         }
@@ -119,10 +101,7 @@ namespace BezierCurves.ViewModels
             {
                 if (_sample.TIn.Z != value)
                 {
-                    _modifiedProperty = ModifiedProperty.IZ;
                     _sample.TIn.Z = value;
-                    _modifiedProperty = ModifiedProperty.None;
-                    OnPropertyChanged(nameof(IZ));
                 }
             }
         }
@@ -134,10 +113,7 @@ namespace BezierCurves.ViewModels
             {
                 if (_sample.TOut.X != value)
                 {
-                    _modifiedProperty = ModifiedProperty.OX;
                     _sample.TOut.X = value;
-                    _modifiedProperty = ModifiedProperty.None;
-                    OnPropertyChanged(nameof(OX));
                 }
             }
         }
@@ -149,10 +125,7 @@ namespace BezierCurves.ViewModels
             {
                 if (_sample.TOut.Y != value)
                 {
-                    _modifiedProperty = ModifiedProperty.OY;
                     _sample.TOut.Y = value;
-                    _modifiedProperty = ModifiedProperty.None;
-                    OnPropertyChanged(nameof(OY));
                 }
             }
         }
@@ -164,10 +137,7 @@ namespace BezierCurves.ViewModels
             {
                 if (_sample.TOut.Z != value)
                 {
-                    _modifiedProperty = ModifiedProperty.OZ;
                     _sample.TOut.Z = value;
-                    _modifiedProperty = ModifiedProperty.None;
-                    OnPropertyChanged(nameof(OZ));
                 }
             }
         }
@@ -179,10 +149,7 @@ namespace BezierCurves.ViewModels
             {
                 if (_sample.TIn.Length != value)
                 {
-                    _modifiedProperty = ModifiedProperty.ILength;
                     _sample.TIn.Length = value;
-                    _modifiedProperty = ModifiedProperty.None;
-                    OnPropertyChanged(nameof(ILength));
                 }
             }
         }
@@ -194,69 +161,83 @@ namespace BezierCurves.ViewModels
             {
                 if (_sample.TOut.Length != value)
                 {
-                    _modifiedProperty = ModifiedProperty.OLength;
                     _sample.TOut.Length = value;
-                    _modifiedProperty = ModifiedProperty.None;
-                    OnPropertyChanged(nameof(OLength));
                 }
             }
         }
 
-        public Model3D Model { get; set; }
+        public bool AreTangentsContinous
+        {
+            get => _sample.AreTangentsContinous;
+            set
+            {
+                if (_sample.AreTangentsContinous != value)
+                {
+                    _sample.AreTangentsContinous = value;
+                }
+            }
+        }
 
-        private GeometryModel3D _sphereGeometry;
-        private GeometryModel3D _tangenteInGeometry;
-        private GeometryModel3D _tangenteOutGeometry;
+        public Model3DGroup Model { get; set; }
+
+        private readonly GeometryModel3D _sphereGeometry;
+        private readonly GeometryModel3D _tangentInGeometry;
+        private readonly GeometryModel3D _tangentOutGeometry;
 
         public SampleViewModel(Sample sample)
         {
             _sample = sample;
             _name = string.Empty;
-            _modifiedProperty = ModifiedProperty.None;
 
             _sphereGeometry = Helper3D.Helper3D.BuildSphere(new Point3D(), 0.2, Brushes.Gold);
-            _tangenteInGeometry = Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(),  0.1, Brushes.IndianRed);
-            _tangenteOutGeometry = Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(), 0.1, Brushes.Indigo);
+            _tangentInGeometry = Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(),  0.1, Brushes.IndianRed);
+            _tangentOutGeometry = Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(), 0.1, Brushes.Indigo);
             
             UpdateTransform(_sphereGeometry);
-            UpdateTransform(_tangenteInGeometry);
-            UpdateTransform(_tangenteOutGeometry);
+            UpdateTransform(_tangentInGeometry);
+            UpdateTransform(_tangentOutGeometry);
+            UpdateTangentGeometry(_tangentInGeometry, _sample.TIn, 0.1);
+            UpdateTangentGeometry(_tangentOutGeometry, _sample.TOut, 0.1);
 
-            Model3DGroup collection = new Model3DGroup();
-            collection.Children.Add(_sphereGeometry);
-            collection.Children.Add(_tangenteInGeometry);
-            collection.Children.Add(_tangenteOutGeometry);
-
-            Model = collection;
+            Model = new Model3DGroup();
+            Model.Children.Add(_sphereGeometry);
+            Model.Children.Add(_tangentInGeometry);
+            Model.Children.Add(_tangentOutGeometry);
 
             _sample.CoordonateChanged += Sample_CoordonatesChanged;
+            _sample.AreTangentsContinousChanged += Sample_AreTangentsContinousChanged;
             _sample.TIn.CoordonateChanged += SampleTIn_CoordonatesChanged;
             _sample.TOut.CoordonateChanged += SampleTOut_CoordonatesChanged;
         }
 
-        private void Sample_CoordonatesChanged(object? sender, ModifiedPropertyEventArgs eventArgs)
+        private void Sample_CoordonatesChanged(object? sender, EventArgs eventArgs)
         {
             UpdateTransform(_sphereGeometry);
-            UpdateTransform(_tangenteInGeometry);
-            UpdateTransform(_tangenteOutGeometry);
+            UpdateTransform(_tangentInGeometry);
+            UpdateTransform(_tangentOutGeometry);
 
             OnPropertyChanged(nameof(X));
             OnPropertyChanged(nameof(Y));
             OnPropertyChanged(nameof(Z));
         }
 
-        private void SampleTIn_CoordonatesChanged(object? sender, ModifiedPropertyEventArgs eventArgs)
+        private void Sample_AreTangentsContinousChanged(object? sender, EventArgs eventArgs)
         {
-            UpdateTangenteGeometry(_tangenteInGeometry, _sample.TIn, 0.1);
+            OnPropertyChanged(nameof(AreTangentsContinous));
+        }
+
+        private void SampleTIn_CoordonatesChanged(object? sender, EventArgs eventArgs)
+        {
+            UpdateTangentGeometry(_tangentInGeometry, _sample.TIn, 0.1);
             OnPropertyChanged(nameof(IX));
             OnPropertyChanged(nameof(IY));
             OnPropertyChanged(nameof(IZ));
             OnPropertyChanged(nameof(ILength));
         }
 
-        private void SampleTOut_CoordonatesChanged(object? sender, ModifiedPropertyEventArgs eventArgs)
+        private void SampleTOut_CoordonatesChanged(object? sender, EventArgs eventArgs)
         {
-            UpdateTangenteGeometry(_tangenteOutGeometry, _sample.TOut, 0.1);
+            UpdateTangentGeometry(_tangentOutGeometry, _sample.TOut, 0.1);
             OnPropertyChanged(nameof(OX));
             OnPropertyChanged(nameof(OY));
             OnPropertyChanged(nameof(OZ));
@@ -270,15 +251,22 @@ namespace BezierCurves.ViewModels
 
         private void UpdateTransform(GeometryModel3D geometryModel3D)
         {
+            Trace.WriteLine("SampleVM UpdateTransform");
             TranslateTransform3D transform = (TranslateTransform3D)geometryModel3D.Transform;
             transform.OffsetX = X;
             transform.OffsetY = Y;
             transform.OffsetZ = Z;
         }
 
-        private void UpdateTangenteGeometry(GeometryModel3D tangenteGeometry, Tangente tangente, double diameter)
+        private void UpdateTangentGeometry(GeometryModel3D tangenteGeometry, Tangent tangente, double diameter)
         {
+            Trace.WriteLine("SampleVM UpdateTangentGeometry");
             tangenteGeometry.Geometry = Helper3D.Helper3D.BuildArrowGeometry(new Point3D(), tangente.GetPoint3D(), diameter);
+        }
+
+        internal Point3D GetSamplePoint3D()
+        {
+            return _sample.GetPoint3D();
         }
 
         public override void Dispose()

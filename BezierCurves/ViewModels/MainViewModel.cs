@@ -19,7 +19,13 @@ namespace BezierCurves.ViewModels
         public int SelectedIndex
         {
             get => _selectedIndex;
-            set => SetValue(ref _selectedIndex, value);
+            set
+            {
+                if (SetValue(ref _selectedIndex, value))
+                {
+                    AddingPoint = _selectedIndex < 0 ? null : PointsCollection[_selectedIndex];
+                }
+            }
         }
 
         public ObservableCollection<SampleViewModel> PointsCollection { get; private set; }
@@ -40,7 +46,9 @@ namespace BezierCurves.ViewModels
         public AddPointCommand AddPointCommand { get; private set; }
         public DeselectPointCommand DeselectPointCommand { get; private set; }
 
-        public Model3D OriginModel { get; private set; }
+        public Model3DGroup OriginModel { get; private set; }
+
+        public Model3DGroup PointsModel { get; private set; }
 
         public MainViewModel()
         {
@@ -51,11 +59,12 @@ namespace BezierCurves.ViewModels
             AddPointCommand = new AddPointCommand(this);
             DeselectPointCommand = new DeselectPointCommand(this);
 
-            Model3DGroup model3DGroup = new Model3DGroup();
-            model3DGroup.Children.Add(Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(1, 0, 0), 0.1, Brushes.Red));
-            model3DGroup.Children.Add(Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(0, 1, 0), 0.1, Brushes.Green));
-            model3DGroup.Children.Add(Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(0, 0, 1), 0.1, Brushes.Blue));
-            OriginModel = model3DGroup;
+            OriginModel = new Model3DGroup();
+            OriginModel.Children.Add(Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(1, 0, 0), 0.1, Brushes.Red));
+            OriginModel.Children.Add(Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(0, 1, 0), 0.1, Brushes.Green));
+            OriginModel.Children.Add(Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(0, 0, 1), 0.1, Brushes.Blue));
+
+            PointsModel = new Model3DGroup();
 
             PointsCollection.CollectionChanged += PointsCollection_CollectionChanged;
             _addingPoint = null;
@@ -71,6 +80,7 @@ namespace BezierCurves.ViewModels
                         if (item is SampleViewModel sampleViewModel)
                         {
                             sampleViewModel.PropertyChanged += SampleViewModel_PropertyChanged;
+                            PointsModel.Children.Add(sampleViewModel.Model);
                         }
                     }
                     break;
@@ -82,6 +92,14 @@ namespace BezierCurves.ViewModels
                         if (item is SampleViewModel sampleViewModel)
                         {
                             sampleViewModel.PropertyChanged -= SampleViewModel_PropertyChanged;
+                            for (int i = 0; i < PointsModel.Children.Count; i++)
+                            {
+                                if (PointsModel.Children[i] == sampleViewModel.Model)
+                                {
+                                    PointsModel.Children.RemoveAt(i);
+                                    break;
+                                }
+                            }
                         }
                     }
                     break;
@@ -98,7 +116,7 @@ namespace BezierCurves.ViewModels
             if (_addingPoint != null)
             {
                 PointsCollection.Add(_addingPoint.Clone());
-                AddingPoint = null;
+                DeselectPoint();
             }
         }
 

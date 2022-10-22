@@ -25,20 +25,5 @@ namespace BezierCurves.Views
         {
             InitializeComponent();
         }
-
-        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (DataContext is MainViewModel viewModel)
-            {
-                if (e.AddedItems.Count > 0 && e.AddedItems[0] is SampleViewModel sampleViewModel)
-                {
-                    viewModel.AddingPoint = sampleViewModel;
-                }
-                else
-                {
-                    viewModel.DeselectPoint();
-                }
-            }
-        }
     }
 }

@@ -23,7 +23,7 @@
 
             <ModelVisual3D Content="{Binding OriginModel}" />
             <ModelVisual3D Content="{Binding AddingPoint.Model}"/>
-            <ModelVisual3D />
+            <ModelVisual3D Content="{Binding PointsModel}"/>
             <ModelVisual3D />
 
             <HelixToolkit:GridLinesVisual3D Width="8" Length="8" MinorDistance="1" MajorDistance="1" Thickness="0.01"/>
@@ -35,7 +35,7 @@
             </HelixToolkit:HelixViewport3D.Background>
         </HelixToolkit:HelixViewport3D>
 
-        <Grid>
+        <Grid HorizontalAlignment="Left">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
@@ -59,7 +59,6 @@
                     FocusVisualStyle="{x:Null}"
                     SelectedIndex="{Binding SelectedIndex, UpdateSourceTrigger=PropertyChanged}"
                     ItemsSource="{Binding PointsCollection}"
-                    SelectionChanged="ListView_SelectionChanged"
                     >
                     <ListView.InputBindings>
                         <KeyBinding Command="{Binding DeletePointCommand}" Key="Delete" />
@@ -105,6 +104,7 @@
                     <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
@@ -164,6 +164,13 @@
 
                 <Grid Grid.Row="2" Grid.Column="0" Margin="0 20 0 0">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox Content="Continous tangents" Foreground="White" IsChecked="{Binding AddingPoint.AreTangentsContinous, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+                
+                <Grid Grid.Row="3" Grid.Column="0" Margin="0 20 0 0">
+                    <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="50"/>
                         <ColumnDefinition Width="50"/>
                         <ColumnDefinition Width="50"/>
@@ -201,7 +208,7 @@
                     </TextBox>
                 </Grid>
 
-                <Grid Grid.Row="3" Grid.Column="0" Margin="0 20 0 0">
+                <Grid Grid.Row="4" Grid.Column="0" Margin="0 20 0 0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="50"/>
                         <ColumnDefinition Width="50"/>
@@ -241,7 +248,6 @@
                 </Grid>
             
             </Grid>
-
         </Grid>
     </Grid>
 </Window>

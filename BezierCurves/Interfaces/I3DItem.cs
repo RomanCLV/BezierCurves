@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
-using BezierCurves.EventArgs;
 
 namespace BezierCurves.Interfaces
 {
@@ -14,7 +13,7 @@ namespace BezierCurves.Interfaces
         public double Y { get; set; }
         public double Z { get; set; }
 
-        public EventHandler<ModifiedPropertyEventArgs>? CoordonateChanged { get; set; }
+        public EventHandler? CoordonateChanged { get; set; }
 
         public Point3D GetPoint3D();
     }
