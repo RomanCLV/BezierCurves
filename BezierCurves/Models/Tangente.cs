@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Media3D;
 
 namespace BezierCurves.Models
 {
@@ -13,7 +14,6 @@ namespace BezierCurves.Models
         private double _x;
         private double _y;
         private double _z;
-        private double _length;
 
         public EventHandler<ModifiedPropertyEventArgs>? CoordonateChanged { get; set; }
 
@@ -23,6 +23,7 @@ namespace BezierCurves.Models
             set
             {
                 _x = value;
+                ComputeLength();
                 OnCoordonatesChanged();
             }
         }
@@ -33,6 +34,7 @@ namespace BezierCurves.Models
             set
             {
                 _y = value;
+                ComputeLength();
                 OnCoordonatesChanged();
             }
         }
@@ -43,26 +45,24 @@ namespace BezierCurves.Models
             set
             {
                 _z = value;
+                ComputeLength();
                 OnCoordonatesChanged();
             }
         }
 
-        public double Length
-        {
-            get => _length;
-            set
-            {
-                _length = value;
-                OnCoordonatesChanged();
-            }
-        }
+        public double Length { get; set; }
 
         public Tangente()
         {
             _x = 0;
             _y = 0;
             _z = 0;
-            _length = 0;
+            ComputeLength();
+        }
+
+        private void ComputeLength()
+        {
+            Length = Math.Sqrt(Math.Pow(_x, 2) + Math.Pow(_y, 2) + Math.Pow(_z, 2));
         }
 
         internal void Reset()
@@ -70,13 +70,18 @@ namespace BezierCurves.Models
             _x = 0;
             _y = 0;
             _z = 0;
-            _length = 0;
+            ComputeLength();
             OnCoordonatesChanged();
         }
 
         private void OnCoordonatesChanged()
         {
             CoordonateChanged?.Invoke(this, new ModifiedPropertyEventArgs(ModifiedProperty.None));
+        }
+
+        public Point3D GetPoint3D()
+        {
+            return new Point3D(X, Y, Z);
         }
 
         public Tangente Clone()
@@ -86,7 +91,7 @@ namespace BezierCurves.Models
                 _x = _x,
                 _y = _y,
                 _z = _z,
-                _length = _length
+                Length = Length
             };
         }
     }

@@ -1,9 +1,10 @@
-﻿using BezierCurves.EventArgs;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Media3D;
+using BezierCurves.EventArgs;
 
 namespace BezierCurves.Interfaces
 {
@@ -14,5 +15,7 @@ namespace BezierCurves.Interfaces
         public double Z { get; set; }
 
         public EventHandler<ModifiedPropertyEventArgs>? CoordonateChanged { get; set; }
+
+        public Point3D GetPoint3D();
     }
 }

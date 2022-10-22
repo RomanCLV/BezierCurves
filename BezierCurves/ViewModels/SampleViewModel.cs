@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
 using BezierCurves.EventArgs;
 using BezierCurves.Interfaces;
 using BezierCurves.Models;
+using BezierCurves.Helper3D;
 
 namespace BezierCurves.ViewModels
 {
@@ -198,11 +202,32 @@ namespace BezierCurves.ViewModels
             }
         }
 
+        public Model3D Model { get; set; }
+
+        private GeometryModel3D _sphereGeometry;
+        private GeometryModel3D _tangenteInGeometry;
+        private GeometryModel3D _tangenteOutGeometry;
+
         public SampleViewModel(Sample sample)
         {
             _sample = sample;
             _name = string.Empty;
             _modifiedProperty = ModifiedProperty.None;
+
+            _sphereGeometry = Helper3D.Helper3D.BuildSphere(new Point3D(), 0.2, Brushes.Gold);
+            _tangenteInGeometry = Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(),  0.1, Brushes.IndianRed);
+            _tangenteOutGeometry = Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(), 0.1, Brushes.Indigo);
+            
+            UpdateTransform(_sphereGeometry);
+            UpdateTransform(_tangenteInGeometry);
+            UpdateTransform(_tangenteOutGeometry);
+
+            Model3DGroup collection = new Model3DGroup();
+            collection.Children.Add(_sphereGeometry);
+            collection.Children.Add(_tangenteInGeometry);
+            collection.Children.Add(_tangenteOutGeometry);
+
+            Model = collection;
 
             _sample.CoordonateChanged += Sample_CoordonatesChanged;
             _sample.TIn.CoordonateChanged += SampleTIn_CoordonatesChanged;
@@ -211,12 +236,10 @@ namespace BezierCurves.ViewModels
 
         private void Sample_CoordonatesChanged(object? sender, ModifiedPropertyEventArgs eventArgs)
         {
-            if (_modifiedProperty == ModifiedProperty.X ||
-                _modifiedProperty == ModifiedProperty.Y ||
-                _modifiedProperty == ModifiedProperty.Z)
-            {
-                return;
-            }
+            UpdateTransform(_sphereGeometry);
+            UpdateTransform(_tangenteInGeometry);
+            UpdateTransform(_tangenteOutGeometry);
+
             OnPropertyChanged(nameof(X));
             OnPropertyChanged(nameof(Y));
             OnPropertyChanged(nameof(Z));
@@ -224,13 +247,7 @@ namespace BezierCurves.ViewModels
 
         private void SampleTIn_CoordonatesChanged(object? sender, ModifiedPropertyEventArgs eventArgs)
         {
-            if (_modifiedProperty == ModifiedProperty.IX ||
-                _modifiedProperty == ModifiedProperty.IY ||
-                _modifiedProperty == ModifiedProperty.IZ ||
-                _modifiedProperty == ModifiedProperty.ILength)
-            {
-                return;
-            }
+            UpdateTangenteGeometry(_tangenteInGeometry, _sample.TIn, 0.1);
             OnPropertyChanged(nameof(IX));
             OnPropertyChanged(nameof(IY));
             OnPropertyChanged(nameof(IZ));
@@ -239,13 +256,7 @@ namespace BezierCurves.ViewModels
 
         private void SampleTOut_CoordonatesChanged(object? sender, ModifiedPropertyEventArgs eventArgs)
         {
-            if (_modifiedProperty == ModifiedProperty.OX ||
-                _modifiedProperty == ModifiedProperty.OY ||
-                _modifiedProperty == ModifiedProperty.OZ ||
-                _modifiedProperty == ModifiedProperty.OLength)
-            {
-                return;
-            }
+            UpdateTangenteGeometry(_tangenteOutGeometry, _sample.TOut, 0.1);
             OnPropertyChanged(nameof(OX));
             OnPropertyChanged(nameof(OY));
             OnPropertyChanged(nameof(OZ));
@@ -255,6 +266,19 @@ namespace BezierCurves.ViewModels
         internal void Reset()
         {
             _sample.Reset();
+        }
+
+        private void UpdateTransform(GeometryModel3D geometryModel3D)
+        {
+            TranslateTransform3D transform = (TranslateTransform3D)geometryModel3D.Transform;
+            transform.OffsetX = X;
+            transform.OffsetY = Y;
+            transform.OffsetZ = Z;
+        }
+
+        private void UpdateTangenteGeometry(GeometryModel3D tangenteGeometry, Tangente tangente, double diameter)
+        {
+            tangenteGeometry.Geometry = Helper3D.Helper3D.BuildArrowGeometry(new Point3D(), tangente.GetPoint3D(), diameter);
         }
 
         public override void Dispose()

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Media3D;
 
 namespace BezierCurves.Models
 {
@@ -71,6 +72,11 @@ namespace BezierCurves.Models
         private void OnCoordonatesChanged()
         {
             CoordonateChanged?.Invoke(this, new ModifiedPropertyEventArgs(ModifiedProperty.None));
+        }
+
+        public Point3D GetPoint3D()
+        {
+            return new Point3D(X, Y, Z);
         }
 
         public Sample Clone()

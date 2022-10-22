@@ -36,7 +36,7 @@ namespace BezierCurves.Views
                 }
                 else
                 {
-                    viewModel.AddingPoint = null;
+                    viewModel.DeselectPoint();
                 }
             }
         }

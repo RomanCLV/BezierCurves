@@ -11,15 +11,20 @@
         Title="Bezier Curves" Height="720" Width="1280">
     <Window.Resources>
         <converters:ValueNotNullConverter x:Key="ValueNotNullConverter" />
+
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+        </Style>
     </Window.Resources>
     <Grid>
         <HelixToolkit:HelixViewport3D>
             <!-- Remember to add light to the scene -->
             <HelixToolkit:SunLight/>
 
-            <ModelVisual3D x:Name="addingPoint" />
-            <ModelVisual3D x:Name="pointsCollection" />
-            <ModelVisual3D x:Name="linesCollection" />
+            <ModelVisual3D Content="{Binding OriginModel}" />
+            <ModelVisual3D Content="{Binding AddingPoint.Model}"/>
+            <ModelVisual3D />
+            <ModelVisual3D />
 
             <HelixToolkit:GridLinesVisual3D Width="8" Length="8" MinorDistance="1" MajorDistance="1" Thickness="0.01"/>
             <HelixToolkit:HelixViewport3D.Background>
@@ -189,7 +194,7 @@
                             <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
                         </TextBox.InputBindings>
                     </TextBox>
-                    <TextBox   Grid.Row="2" Grid.Column="3" Text="{Binding AddingPoint.ILength, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox   Grid.Row="2" Grid.Column="3" Text="{Binding AddingPoint.ILength, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F3}" IsEnabled="False">
                         <TextBox.InputBindings>
                             <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
                         </TextBox.InputBindings>
@@ -228,7 +233,7 @@
                             <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
                         </TextBox.InputBindings>
                     </TextBox>
-                    <TextBox   Grid.Row="2" Grid.Column="3" Text="{Binding AddingPoint.OLength, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox   Grid.Row="2" Grid.Column="3" Text="{Binding AddingPoint.OLength, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, StringFormat=F3}" IsEnabled="False">
                         <TextBox.InputBindings>
                             <KeyBinding Command="{Binding DeselectPointCommand}" Key="Esc" />
                         </TextBox.InputBindings>
