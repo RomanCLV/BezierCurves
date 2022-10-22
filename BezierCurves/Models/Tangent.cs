@@ -59,7 +59,23 @@ namespace BezierCurves.Models
             }
         }
 
-        public double Length { get; set; }
+        private double _length;
+        public double Length
+        {
+            get => _length;
+            set
+            {
+                if (_length != value)
+                {
+                    _length = value;
+                    double coef = _length / Math.Sqrt(Math.Pow(_x, 2) + Math.Pow(_y, 2) + Math.Pow(_z, 2));
+                    _x *= coef;
+                    _y *= coef;
+                    _z *= coef;
+                    OnCoordonatesChanged();
+                }
+            }
+        }
 
         public Tangent()
         {
@@ -79,7 +95,7 @@ namespace BezierCurves.Models
 
         private void ComputeLength()
         {
-            Length = Math.Sqrt(Math.Pow(_x, 2) + Math.Pow(_y, 2) + Math.Pow(_z, 2));
+            _length = Math.Sqrt(Math.Pow(_x, 2) + Math.Pow(_y, 2) + Math.Pow(_z, 2));
         }
 
         internal void Reset()
@@ -97,7 +113,6 @@ namespace BezierCurves.Models
             Y = tangente._y;
             Z = tangente._z;
         }
-
 
         internal void SetFromOpposite(Tangent tangente)
         {
@@ -125,6 +140,11 @@ namespace BezierCurves.Models
                 _z = _z,
                 Length = Length
             };
+        }
+
+        public override string ToString()
+        {
+            return "{ " + $"{X} {Y} {Z}" + " }";
         }
     }
 }

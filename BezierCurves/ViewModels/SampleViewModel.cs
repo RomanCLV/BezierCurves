@@ -14,7 +14,7 @@ namespace BezierCurves.ViewModels
 {
     internal class SampleViewModel : ViewModelBase, ICloneable<SampleViewModel>
     {
-        private readonly Sample _sample;
+        internal Sample Sample { get; private set; }
 
         private string _name;
         public string Name
@@ -33,12 +33,12 @@ namespace BezierCurves.ViewModels
 
         public double X
         {
-            get => _sample.X;
+            get => Sample.X;
             set
             {
-                if (_sample.X != value)
+                if (Sample.X != value)
                 {
-                    _sample.X = value;
+                    Sample.X = value;
                     OnPropertyChanged(nameof(FullName));
                 }
             }
@@ -46,12 +46,12 @@ namespace BezierCurves.ViewModels
 
         public double Y
         {
-            get => _sample.Y;
+            get => Sample.Y;
             set
             {
-                if (_sample.Y != value)
+                if (Sample.Y != value)
                 {
-                    _sample.Y = value;
+                    Sample.Y = value;
                     OnPropertyChanged(nameof(FullName));
                 }
             }
@@ -59,12 +59,12 @@ namespace BezierCurves.ViewModels
 
         public double Z
         {
-            get => _sample.Z;
+            get => Sample.Z;
             set
             {
-                if (_sample.Z != value)
+                if (Sample.Z != value)
                 {
-                    _sample.Z = value;
+                    Sample.Z = value;
                     OnPropertyChanged(nameof(FullName));
                 }
             }
@@ -72,108 +72,108 @@ namespace BezierCurves.ViewModels
 
         public double IX
         {
-            get => _sample.TIn.X;
+            get => Sample.TIn.X;
             set
             {
-                if (_sample.TIn.X != value)
+                if (Sample.TIn.X != value)
                 {
-                    _sample.TIn.X = value;
+                    Sample.TIn.X = value;
                 }
             }
         }
 
         public double IY
         {
-            get => _sample.TIn.Y;
+            get => Sample.TIn.Y;
             set
             {
-                if (_sample.TIn.Y != value)
+                if (Sample.TIn.Y != value)
                 {
-                    _sample.TIn.Y = value;
+                    Sample.TIn.Y = value;
                 }
             }
         }
 
         public double IZ
         {
-            get => _sample.TIn.Z;
+            get => Sample.TIn.Z;
             set
             {
-                if (_sample.TIn.Z != value)
+                if (Sample.TIn.Z != value)
                 {
-                    _sample.TIn.Z = value;
+                    Sample.TIn.Z = value;
                 }
             }
         }
 
         public double OX
         {
-            get => _sample.TOut.X;
+            get => Sample.TOut.X;
             set
             {
-                if (_sample.TOut.X != value)
+                if (Sample.TOut.X != value)
                 {
-                    _sample.TOut.X = value;
+                    Sample.TOut.X = value;
                 }
             }
         }
 
         public double OY
         {
-            get => _sample.TOut.Y;
+            get => Sample.TOut.Y;
             set
             {
-                if (_sample.TOut.Y != value)
+                if (Sample.TOut.Y != value)
                 {
-                    _sample.TOut.Y = value;
+                    Sample.TOut.Y = value;
                 }
             }
         }
 
         public double OZ
         {
-            get => _sample.TOut.Z;
+            get => Sample.TOut.Z;
             set
             {
-                if (_sample.TOut.Z != value)
+                if (Sample.TOut.Z != value)
                 {
-                    _sample.TOut.Z = value;
+                    Sample.TOut.Z = value;
                 }
             }
         }
 
         public double ILength
         {
-            get => _sample.TIn.Length;
+            get => Sample.TIn.Length;
             set
             {
-                if (_sample.TIn.Length != value)
+                if (Sample.TIn.Length != value)
                 {
-                    _sample.TIn.Length = value;
+                    Sample.TIn.Length = value;
                 }
             }
         }
 
         public double OLength
         {
-            get => _sample.TOut.Length;
+            get => Sample.TOut.Length;
             set
             {
-                if (_sample.TOut.Length != value)
+                if (Sample.TOut.Length != value)
                 {
-                    _sample.TOut.Length = value;
+                    Sample.TOut.Length = value;
                 }
             }
         }
 
         public bool AreTangentsContinous
         {
-            get => _sample.AreTangentsContinous;
+            get => Sample.AreTangentsContinous;
             set
             {
-                if (_sample.AreTangentsContinous != value)
+                if (Sample.AreTangentsContinous != value)
                 {
-                    _sample.AreTangentsContinous = value;
+                    Sample.AreTangentsContinous = value;
                 }
             }
         }
@@ -186,28 +186,28 @@ namespace BezierCurves.ViewModels
 
         public SampleViewModel(Sample sample)
         {
-            _sample = sample;
+            Sample = sample;
             _name = string.Empty;
 
-            _sphereGeometry = Helper3D.Helper3D.BuildSphere(new Point3D(), 0.2, Brushes.Gold);
-            _tangentInGeometry = Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(),  0.1, Brushes.IndianRed);
-            _tangentOutGeometry = Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(), 0.1, Brushes.Indigo);
+            _sphereGeometry = Helper3D.Helper3D.BuildSphere(new Point3D(), 0.2, Brushes.Tomato);
+            _tangentInGeometry = Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(),  0.1, Brushes.LightBlue);
+            _tangentOutGeometry = Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(), 0.1, Brushes.LightCoral);
             
             UpdateTransform(_sphereGeometry);
             UpdateTransform(_tangentInGeometry);
             UpdateTransform(_tangentOutGeometry);
-            UpdateTangentGeometry(_tangentInGeometry, _sample.TIn, 0.1);
-            UpdateTangentGeometry(_tangentOutGeometry, _sample.TOut, 0.1);
+            UpdateTangentGeometry(_tangentInGeometry, Sample.TIn, 0.1);
+            UpdateTangentGeometry(_tangentOutGeometry, Sample.TOut, 0.1);
 
             Model = new Model3DGroup();
             Model.Children.Add(_sphereGeometry);
             Model.Children.Add(_tangentInGeometry);
             Model.Children.Add(_tangentOutGeometry);
 
-            _sample.CoordonateChanged += Sample_CoordonatesChanged;
-            _sample.AreTangentsContinousChanged += Sample_AreTangentsContinousChanged;
-            _sample.TIn.CoordonateChanged += SampleTIn_CoordonatesChanged;
-            _sample.TOut.CoordonateChanged += SampleTOut_CoordonatesChanged;
+            Sample.CoordonateChanged += Sample_CoordonatesChanged;
+            Sample.AreTangentsContinousChanged += Sample_AreTangentsContinousChanged;
+            Sample.TIn.CoordonateChanged += SampleTIn_CoordonatesChanged;
+            Sample.TOut.CoordonateChanged += SampleTOut_CoordonatesChanged;
         }
 
         private void Sample_CoordonatesChanged(object? sender, EventArgs eventArgs)
@@ -228,7 +228,7 @@ namespace BezierCurves.ViewModels
 
         private void SampleTIn_CoordonatesChanged(object? sender, EventArgs eventArgs)
         {
-            UpdateTangentGeometry(_tangentInGeometry, _sample.TIn, 0.1);
+            UpdateTangentGeometry(_tangentInGeometry, Sample.TIn, 0.1);
             OnPropertyChanged(nameof(IX));
             OnPropertyChanged(nameof(IY));
             OnPropertyChanged(nameof(IZ));
@@ -237,7 +237,7 @@ namespace BezierCurves.ViewModels
 
         private void SampleTOut_CoordonatesChanged(object? sender, EventArgs eventArgs)
         {
-            UpdateTangentGeometry(_tangentOutGeometry, _sample.TOut, 0.1);
+            UpdateTangentGeometry(_tangentOutGeometry, Sample.TOut, 0.1);
             OnPropertyChanged(nameof(OX));
             OnPropertyChanged(nameof(OY));
             OnPropertyChanged(nameof(OZ));
@@ -246,7 +246,7 @@ namespace BezierCurves.ViewModels
 
         internal void Reset()
         {
-            _sample.Reset();
+            Sample.Reset();
         }
 
         private void UpdateTransform(GeometryModel3D geometryModel3D)
@@ -264,14 +264,15 @@ namespace BezierCurves.ViewModels
 
         internal Point3D GetSamplePoint3D()
         {
-            return _sample.GetPoint3D();
+            return Sample.GetPoint3D();
         }
 
         public override void Dispose()
         {
-            _sample.CoordonateChanged -= Sample_CoordonatesChanged;
-            _sample.TIn.CoordonateChanged -= SampleTIn_CoordonatesChanged;
-            _sample.TOut.CoordonateChanged -= SampleTOut_CoordonatesChanged;
+            Sample.CoordonateChanged -= Sample_CoordonatesChanged;
+            Sample.AreTangentsContinousChanged -= Sample_AreTangentsContinousChanged;
+            Sample.TIn.CoordonateChanged -= SampleTIn_CoordonatesChanged;
+            Sample.TOut.CoordonateChanged -= SampleTOut_CoordonatesChanged;
             base.Dispose();
         }
 
@@ -282,7 +283,7 @@ namespace BezierCurves.ViewModels
 
         public SampleViewModel Clone()
         {
-            return new SampleViewModel(_sample.Clone())
+            return new SampleViewModel(Sample.Clone())
             {
                 _name = _name,
             };

@@ -4,12 +4,15 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using BezierCurves.Beziers;
 using BezierCurves.Commands;
+using HelixToolkit.Wpf;
 
 namespace BezierCurves.ViewModels
 {
@@ -28,6 +31,32 @@ namespace BezierCurves.ViewModels
             }
         }
 
+        private int _bezierPrecision;
+        public int BezierPrecision
+        {
+            get => _bezierPrecision;
+            set
+            {
+                if (SetValue(ref _bezierPrecision, value))
+                {
+                    ComputeBezier3();
+                }
+            }
+        }
+
+        private bool _hasToComputeBezier3;
+        public bool HasToComputeBezier3
+        {
+            get => _hasToComputeBezier3;
+            set
+            {
+                if (SetValue(ref _hasToComputeBezier3, value))
+                {
+                    ComputeBezier3();
+                }
+            }
+        }
+
         public ObservableCollection<SampleViewModel> PointsCollection { get; private set; }
 
         private SampleViewModel? _addingPoint;
@@ -36,7 +65,10 @@ namespace BezierCurves.ViewModels
             get => _addingPoint;
             set
             {
-                _addingPoint?.Dispose();
+                if (_addingPoint != null && !PointsCollection.Contains(_addingPoint))
+                {
+                    _addingPoint.Dispose();
+                }
                 SetValue(ref _addingPoint, value);
             }
         }
@@ -45,19 +77,25 @@ namespace BezierCurves.ViewModels
         public DeletePointCommand DeletePointCommand { get; private set; }
         public AddPointCommand AddPointCommand { get; private set; }
         public DeselectPointCommand DeselectPointCommand { get; private set; }
+        public ComputeBezier3Command ComputeBezier3Command { get; private set; }
 
         public Model3DGroup OriginModel { get; private set; }
 
         public Model3DGroup PointsModel { get; private set; }
 
+        public GeometryModel3D Bezier3Model { get; private set; }
+
         public MainViewModel()
         {
             _selectedIndex = -1;
+            _hasToComputeBezier3 = false;
+            _bezierPrecision = 10;
             PointsCollection = new ObservableCollection<SampleViewModel>();
             NewPointCommand = new NewPointCommand(this);
             DeletePointCommand = new DeletePointCommand(this);
             AddPointCommand = new AddPointCommand(this);
             DeselectPointCommand = new DeselectPointCommand(this);
+            ComputeBezier3Command = new ComputeBezier3Command(this);
 
             OriginModel = new Model3DGroup();
             OriginModel.Children.Add(Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(1, 0, 0), 0.1, Brushes.Red));
@@ -65,6 +103,11 @@ namespace BezierCurves.ViewModels
             OriginModel.Children.Add(Helper3D.Helper3D.BuildArrow(new Point3D(), new Point3D(0, 0, 1), 0.1, Brushes.Blue));
 
             PointsModel = new Model3DGroup();
+
+            Bezier3Model = new GeometryModel3D()
+            {
+                Material = MaterialHelper.CreateMaterial(Brushes.Gold)
+            };
 
             PointsCollection.CollectionChanged += PointsCollection_CollectionChanged;
             _addingPoint = null;
@@ -79,7 +122,9 @@ namespace BezierCurves.ViewModels
                     {
                         if (item is SampleViewModel sampleViewModel)
                         {
-                            sampleViewModel.PropertyChanged += SampleViewModel_PropertyChanged;
+                            sampleViewModel.Sample.CoordonateChanged += AutoCompute;
+                            sampleViewModel.Sample.TIn.CoordonateChanged += AutoCompute;
+                            sampleViewModel.Sample.TOut.CoordonateChanged += AutoCompute;
                             PointsModel.Children.Add(sampleViewModel.Model);
                         }
                     }
@@ -91,7 +136,11 @@ namespace BezierCurves.ViewModels
                     {
                         if (item is SampleViewModel sampleViewModel)
                         {
-                            sampleViewModel.PropertyChanged -= SampleViewModel_PropertyChanged;
+                            sampleViewModel.Sample.CoordonateChanged -= AutoCompute;
+                            sampleViewModel.Sample.TIn.CoordonateChanged -= AutoCompute;
+                            sampleViewModel.Sample.TOut.CoordonateChanged -= AutoCompute;
+                            sampleViewModel.Dispose();
+
                             for (int i = 0; i < PointsModel.Children.Count; i++)
                             {
                                 if (PointsModel.Children[i] == sampleViewModel.Model)
@@ -104,11 +153,12 @@ namespace BezierCurves.ViewModels
                     }
                     break;
             }
+            ComputeBezier3();
         }
 
-        private void SampleViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void AutoCompute(object? sender, EventArgs e)
         {
-            OnPropertyChanged(nameof(PointsCollection));
+            ComputeBezier3();
         }
 
         internal void AddPoint()
@@ -132,6 +182,18 @@ namespace BezierCurves.ViewModels
             {
                 AddingPoint = null;
             }
+        }
+
+        internal void ComputeBezier3()
+        {
+            if (!_hasToComputeBezier3 || PointsCollection.Count <= 1)
+            {
+                Bezier3Model.Geometry = null;
+                return;
+            }
+            Bezier3 bezier = new Bezier3(PointsCollection.Select(x => x.Sample).ToArray());
+            bezier.Compute();
+            Bezier3Model.Geometry = Helper3D.Helper3D.BuildBezier3(bezier, _bezierPrecision);
         }
     }
 }

@@ -1,11 +1,13 @@
-﻿using HelixToolkit.Wpf;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
 using System.Windows.Media;
+using HelixToolkit.Wpf;
+using BezierCurves.Beziers;
+using System.Diagnostics;
 
 namespace BezierCurves.Helper3D
 {
@@ -49,6 +51,44 @@ namespace BezierCurves.Helper3D
                 BackMaterial = material,
                 Transform = new TranslateTransform3D()
             };
+        }
+
+        internal static Geometry3D BuildBezier3(Bezier3 bezier, int precision = 10)
+        {
+            MeshBuilder builder = new MeshBuilder(false, false);
+            double step = 1.0 / precision;
+            Point3D current;
+            Point3D next;
+            foreach (Bezier3Coefficients3D item in bezier.Bezier3Coefficients3D)
+            {
+                current = ComputePoint3D(item, 0);
+                for (int i = 0; i < precision; i++)
+                {
+                    next = ComputePoint3D(item, (i + 1) * step);
+                    builder.AddCylinder(current, next, 0.05);
+                    current = next;
+                }
+            }
+            return builder.ToMesh(true);
+        }
+
+        private static Point3D ComputePoint3D(Bezier3Coefficients3D bezier3Coefficients3D, double t)
+        {
+            double x = bezier3Coefficients3D.XCoefficients.A * Math.Pow(t, 3) +
+                       bezier3Coefficients3D.XCoefficients.B * Math.Pow(t, 2) +
+                       bezier3Coefficients3D.XCoefficients.C * Math.Pow(t, 1) +
+                       bezier3Coefficients3D.XCoefficients.D;
+
+            double y = bezier3Coefficients3D.YCoefficients.A * Math.Pow(t, 3) +
+                       bezier3Coefficients3D.YCoefficients.B * Math.Pow(t, 2) +
+                       bezier3Coefficients3D.YCoefficients.C * Math.Pow(t, 1) +
+                       bezier3Coefficients3D.YCoefficients.D;
+
+            double z = bezier3Coefficients3D.ZCoefficients.A * Math.Pow(t, 3) +
+                       bezier3Coefficients3D.ZCoefficients.B * Math.Pow(t, 2) +
+                       bezier3Coefficients3D.ZCoefficients.C * Math.Pow(t, 1) +
+                       bezier3Coefficients3D.ZCoefficients.D;
+            return new Point3D(x, y, z);
         }
     }
 }

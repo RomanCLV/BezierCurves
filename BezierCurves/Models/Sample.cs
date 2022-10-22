@@ -78,12 +78,17 @@ namespace BezierCurves.Models
             }
         }
 
+        private bool _isSetTOutFromOpposite;
+        private bool _isSetTInFromOpposite;
+
         public Sample()
         {
             _x = 0;
             _y = 0;
             _z = 0;
             _areTangentsContinous = true;
+            _isSetTOutFromOpposite = false;
+            _isSetTInFromOpposite = false;
             TIn = new Tangent();
             TOut = new Tangent();
 
@@ -91,19 +96,25 @@ namespace BezierCurves.Models
             TOut.CoordonateChanged += TangentOut_CoordonatesChanged;
         }
 
+
+
         private void TangentIn_CoordonatesChanged(object? sender, EventArgs e)
         {
-            if (_areTangentsContinous)
+            if (_areTangentsContinous && !_isSetTInFromOpposite)
             {
+                _isSetTOutFromOpposite = true;
                 TOut.SetFromOpposite(TIn);
+                _isSetTOutFromOpposite = false;
             }
         }
 
         private void TangentOut_CoordonatesChanged(object? sender, EventArgs e)
         {
-            if (_areTangentsContinous)
+            if (_areTangentsContinous && !_isSetTOutFromOpposite)
             {
+                _isSetTInFromOpposite = true;
                 TIn.SetFromOpposite(TOut);
+                _isSetTInFromOpposite = false;
             }
         }
 
@@ -144,6 +155,11 @@ namespace BezierCurves.Models
             sample.TIn.SetFrom(TIn);
             sample.TOut.SetFrom(TOut);
             return sample;
+        }
+
+        public override string ToString()
+        {
+            return "{ " + $"{X} {Y} {Z}" + " }";
         }
     }
 }
